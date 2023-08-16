@@ -2,8 +2,9 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap'); 
 
-#App {
-    min-height: 100vh;
+#root {
+    max-width: 960px;
+    margin: 0 auto;
 } 
 
 
@@ -11,6 +12,8 @@ body {
     font-family: 'Poppins';
     background-color: #cdb8b4;
     color: #1d1514;
+    text-align: center;
+
 
   }
 
