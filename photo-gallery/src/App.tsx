@@ -1,10 +1,11 @@
 import "./assets/scss/App.scss";
+import Title from "./components/Title";
 
 const App = () => {
   return (
-    <div>
-      <h1>Chrilligram</h1>
-    </div>
+    <>
+      <Title />
+    </>
   );
 };
 

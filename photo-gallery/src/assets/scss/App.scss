@@ -1,3 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Amatic+SC&family=Julius+Sans+One&family=Open+Sans:wght@300&family=Rubik+Vinyl&family=Shadows+Into+Light&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap'); 
+
 #App {
     min-height: 100vh;
 } 
+
+
+body {
+    font-family: 'Poppins';
+    background-color: #cdb8b4;
+    color: #1d1514;
+
+  }
+
+  h1, h2 {
+    font-family: 'Amatic SC', cursive;
+    font-weight: bold;
+  }
