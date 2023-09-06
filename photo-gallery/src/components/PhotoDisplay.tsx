@@ -3,36 +3,83 @@ import { storage } from "../services/firebase.config";
 import { ref, listAll, getDownloadURL } from "firebase/storage";
 
 const PhotoDisplay: React.FC = () => {
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [TNImageUrls, setTNImageUrls] = useState<string[]>([]);
+  const [largeImageUrls, setLargeImageUrls] = useState<string[]>([]);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
+    null
+  );
 
   useEffect(() => {
     // Function to fetch image URLs from Firebase Storage
-    const fetchImageUrls = async () => {
+    const fetchTNImageUrls = async () => {
       try {
-        const imagesRef = ref(storage, "images"); // Update the path as needed
+        const TNimagesRef = ref(storage, "thumbnails");
+        const imageList = await listAll(TNimagesRef);
+        const urlsPromises = imageList.items.map(async (imageRef) => {
+          return getDownloadURL(imageRef);
+        });
+        const urls = await Promise.all(urlsPromises);
+        setTNImageUrls(urls);
+      } catch (error) {
+        console.error("Error fetching thumbnail image URLs:", error);
+      }
+    };
+
+    // Function to fetch larger image URLs from Firebase Storage
+    const fetchLargeImageUrls = async () => {
+      try {
+        const imagesRef = ref(storage, "images");
         const imageList = await listAll(imagesRef);
         const urlsPromises = imageList.items.map(async (imageRef) => {
           return getDownloadURL(imageRef);
         });
         const urls = await Promise.all(urlsPromises);
-        setImageUrls(urls);
+        setLargeImageUrls(urls);
       } catch (error) {
-        console.error("Error fetching image URLs:", error);
+        console.error("Error fetching larger image URLs:", error);
       }
     };
 
-    // Fetch image URLs when the component mounts
-    fetchImageUrls();
+    // Fetch thumbnail and larger image URLs when the component mounts
+    fetchTNImageUrls();
+    fetchLargeImageUrls();
   }, []);
+
+  // Function to handle image click and display the larger image
+  const handleImageClick = (index: number) => {
+    setSelectedImageIndex(index); // Store the selected image index
+  };
+
+  // Function to close the modal or lightbox
+  const handleCloseModal = () => {
+    setSelectedImageIndex(null); // Reset the selected image index to close the modal
+  };
 
   return (
     <div>
       <h2>Photo Gallery</h2>
       <div className="image-container">
-        {imageUrls.map((imageUrl, index) => (
-          <img key={index} src={imageUrl} alt={`Image ${index}`} />
+        {TNImageUrls.map((TNImageUrl, index) => (
+          <div key={index} className="thumbnail-container">
+            <img
+              src={TNImageUrl}
+              alt={`Thumbnail ${index}`}
+              onClick={() => handleImageClick(index)}
+            />
+          </div>
         ))}
       </div>
+
+      {/* Modal or lightbox to display the larger image */}
+      {selectedImageIndex !== null && (
+        <div className="modal">
+          <button onClick={handleCloseModal}>Close</button>
+          <img
+            src={largeImageUrls[selectedImageIndex]}
+            alt={`Image ${selectedImageIndex}`}
+          />
+        </div>
+      )}
     </div>
   );
 };

@@ -6,6 +6,7 @@ const UploadForm = () => {
   const [file, setFile] = useState<File | null>(null);
   const [percent, setPercent] = useState(0);
   const [error, setError] = useState<string>("");
+  const [uploadComplete, setUploadComplete] = useState(false);
 
   const types = ["image/png", "image/jpeg"];
 
@@ -49,6 +50,7 @@ const UploadForm = () => {
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((url) => {
             console.log(url);
+            setUploadComplete(true);
           });
         }
       );
