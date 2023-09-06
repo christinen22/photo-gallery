@@ -62,7 +62,7 @@ const UploadForm = () => {
       <form onSubmit={handleSubmit}>
         <input type="file" onChange={changeHandler} />
         <button type="submit">Upload</button>
-        <p>{percent} "% done"</p>
+        <p>{percent} % done</p>
         <div className="output">
           {error && <div className="error">{error}</div>}
           {file && <div>{file.name}</div>}
