@@ -2,13 +2,14 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import { getAuth } from "firebase/auth";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-    //apiKey: "AIzaSyBQebBaoRJaOmsNcMhcfvyQ7khAJGeFeXQ",
+    apiKey: "AIzaSyBQebBaoRJaOmsNcMhcfvyQ7khAJGeFeXQ",
     authDomain: "chrilligram-cbdd6.firebaseapp.com",
     projectId: "chrilligram-cbdd6",
     storageBucket: "chrilligram-cbdd6.appspot.com",
@@ -22,3 +23,4 @@ console.log("Firebase configuration:", firebaseConfig);
 export const app = initializeApp(firebaseConfig);
 export const storage = getStorage(app)
 export const db = getFirestore(app)
+export const auth = getAuth(app)

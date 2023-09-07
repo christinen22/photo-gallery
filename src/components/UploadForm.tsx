@@ -1,14 +1,27 @@
 import React, { ChangeEvent, useState, useEffect } from "react";
 import { storage } from "../services/firebase.config";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { auth } from "../services/firebase.config";
+import { User } from "firebase/auth";
 
 const UploadForm = () => {
   const [file, setFile] = useState<File | null>(null);
   const [percent, setPercent] = useState(0);
   const [error, setError] = useState<string>("");
-  const [uploadComplete, setUploadComplete] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
 
   const types = ["image/png", "image/jpeg"];
+
+  // Check if the user is logged in
+  useEffect(() => {
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        setUser(user);
+      } else {
+        setUser(null);
+      }
+    });
+  }, []);
 
   const changeHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
@@ -50,7 +63,6 @@ const UploadForm = () => {
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((url) => {
             console.log(url);
-            setUploadComplete(true);
           });
         }
       );
