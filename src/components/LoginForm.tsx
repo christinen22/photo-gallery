@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { auth } from "../services/firebase.config";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { Form, Button } from "react-bootstrap";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [user, loading, error] = useAuthState(auth);
 
   const navigate = useNavigate();
 
@@ -20,15 +21,18 @@ const LoginForm = () => {
       );
       const user = userCredential.user;
       console.log("User logged in:", user);
-
-      if (user) {
-        navigate("/home");
-      }
     } catch (error) {
-      setError("Login failed. Please check your email and password.");
       console.error("Login failed:", error);
     }
   };
+
+  useEffect(() => {
+    if (loading) {
+      <p>Loading...</p>;
+      return;
+    }
+    if (user) navigate("/home");
+  }, [user, loading]);
 
   return (
     <div>
@@ -63,8 +67,6 @@ const LoginForm = () => {
         <p className="text-sm text-white text-center">
           No account yet? <Link to="/register">Sign up</Link>
         </p>
-
-        {error && <p className="text-danger">{error}</p>}
       </Form>
     </div>
   );

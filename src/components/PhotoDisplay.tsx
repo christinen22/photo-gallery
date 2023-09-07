@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { storage } from "../services/firebase.config";
 import { ref, listAll, getDownloadURL } from "firebase/storage";
+import { auth } from "../services/firebase.config";
 
 const PhotoDisplay: React.FC = () => {
   const [TNImageUrls, setTNImageUrls] = useState<string[]>([]);
@@ -11,39 +12,33 @@ const PhotoDisplay: React.FC = () => {
 
   useEffect(() => {
     // Function to fetch image URLs from Firebase Storage
-    const fetchTNImageUrls = async () => {
+    const fetchImageUrls = async () => {
       try {
-        const TNimagesRef = ref(storage, "thumbnails");
-        const imageList = await listAll(TNimagesRef);
-        const urlsPromises = imageList.items.map(async (imageRef) => {
-          return getDownloadURL(imageRef);
-        });
-        const urls = await Promise.all(urlsPromises);
-        setTNImageUrls(urls);
+        const user = auth.currentUser;
+        if (user && user.uid) {
+          console.log("Uid: ", user.uid);
+          const TNimagesRef = ref(storage, "thumbnails");
+          const imageList = await listAll(TNimagesRef);
+          const urlsPromises = imageList.items.map(async (imageRef) => {
+            return getDownloadURL(imageRef);
+          });
+          const urls = await Promise.all(urlsPromises);
+          setTNImageUrls(urls);
+        }
       } catch (error) {
         console.error("Error fetching thumbnail image URLs:", error);
       }
     };
 
-    // Function to fetch larger image URLs from Firebase Storage
-    const fetchLargeImageUrls = async () => {
-      try {
-        const imagesRef = ref(storage, "images");
-        const imageList = await listAll(imagesRef);
-        const urlsPromises = imageList.items.map(async (imageRef) => {
-          return getDownloadURL(imageRef);
-        });
-        const urls = await Promise.all(urlsPromises);
-        setLargeImageUrls(urls);
-      } catch (error) {
-        console.error("Error fetching larger image URLs:", error);
-      }
-    };
-
-    // Fetch thumbnail and larger image URLs when the component mounts
-    fetchTNImageUrls();
-    fetchLargeImageUrls();
+    // Fetch image URLs only if the user is authenticated
+    if (auth.currentUser) {
+      fetchImageUrls();
+    } else {
+      console.log("No images for you");
+    }
   }, []);
+
+  // Function to fetch thumbnail image URLs from Firebase Storage
 
   // Function to handle image click and display the larger image
   const handleImageClick = (index: number) => {
@@ -54,6 +49,9 @@ const PhotoDisplay: React.FC = () => {
   const handleCloseModal = () => {
     setSelectedImageIndex(null); // Reset the selected image index to close the modal
   };
+
+  const user = auth.currentUser;
+  console.log("CurrentUser in PhotoDisplay:", user);
 
   return (
     <div>

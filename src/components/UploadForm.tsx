@@ -23,6 +23,8 @@ const UploadForm = () => {
     });
   }, []);
 
+  console.log("User in upload: ", user);
+
   const changeHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
     if (selected && types.includes(selected.type)) {
