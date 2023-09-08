@@ -1,8 +1,10 @@
-import React, { ChangeEvent, useState, useEffect } from "react";
+import { ChangeEvent, useState, useEffect } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import { storage } from "../services/firebase.config";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { auth } from "../services/firebase.config";
 import { User } from "firebase/auth";
+import NoAuth from "../pages/NoAuth";
 
 const UploadForm = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -10,6 +12,7 @@ const UploadForm = () => {
   const [error, setError] = useState<string>("");
   const [user, setUser] = useState<User | null>(null);
 
+  const navigate = useNavigate();
   const types = ["image/png", "image/jpeg"];
 
   // Check if the user is logged in
@@ -74,17 +77,24 @@ const UploadForm = () => {
   };
 
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
-        <input type="file" onChange={changeHandler} />
-        <button type="submit">Upload</button>
-        <p>{percent} % done</p>
-        <div className="output">
-          {error && <div className="error">{error}</div>}
-          {file && <div>{file.name}</div>}
+    <>
+      {user ? (
+        <div>
+          <form onSubmit={handleSubmit}>
+            <input type="file" onChange={changeHandler} />
+            <button type="submit">Upload</button>
+            <p>{percent} % done</p>
+            <div className="output">
+              {error && <div className="error">{error}</div>}
+              {file && <div>{file.name}</div>}
+            </div>
+          </form>
+          <NavLink to="/home">Go home</NavLink>
         </div>
-      </form>
-    </div>
+      ) : (
+        <NoAuth />
+      )}
+    </>
   );
 };
 

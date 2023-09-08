@@ -35,39 +35,48 @@ const LoginForm = () => {
   }, [user, loading]);
 
   return (
-    <div>
-      <h2>Login</h2>
-      <Form>
-        <Form.Group controlId="formBasicEmail">
-          <Form.Label>Email address</Form.Label>
-          <Form.Control
-            type="email"
-            placeholder="Enter email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </Form.Group>
+    <div className="login">
+      <div className="login-container">
+        <h2>Login</h2>
+        <Form>
+          <Form.Group controlId="formBasicEmail">
+            <Form.Label>Email address</Form.Label>
+            <Form.Control
+              type="email"
+              className="login-textBox"
+              placeholder="Enter email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </Form.Group>
 
-        <Form.Group controlId="formBasicPassword">
-          <Form.Label>Password</Form.Label>
-          <Form.Control
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </Form.Group>
+          <Form.Group controlId="formBasicPassword">
+            <Form.Label>Password</Form.Label>
+            <Form.Control
+              type="password"
+              className="login-textBox"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </Form.Group>
 
-        <Button variant="primary" type="button" onClick={handleLogin}>
-          Login
-        </Button>
+          <Button
+            variant="primary"
+            className="login-btn"
+            type="button"
+            onClick={handleLogin}
+          >
+            Login
+          </Button>
 
-        <p className="text-sm text-white text-center">
-          No account yet? <Link to="/register">Sign up</Link>
-        </p>
-      </Form>
+          <p className="text-sm text-white text-center">
+            No account yet? <Link to="/register">Sign up</Link>
+          </p>
+        </Form>
+      </div>
     </div>
   );
 };
