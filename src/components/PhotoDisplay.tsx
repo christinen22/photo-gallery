@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { storage } from "../services/firebase.config";
 import { ref, listAll, getDownloadURL } from "firebase/storage";
 import { auth } from "../services/firebase.config";
+import UploadForm from "./UploadForm";
 
 const PhotoDisplay: React.FC = () => {
   const [TNImageUrls, setTNImageUrls] = useState<string[]>([]);
@@ -59,10 +60,11 @@ const PhotoDisplay: React.FC = () => {
   };
 
   const user = auth.currentUser;
-  console.log("CurrentUser in PhotoDisplay:", user);
 
   return (
     <div>
+      <UploadForm />
+
       <h2>Photo Gallery</h2>
       <div className="image-container">
         {TNImageUrls.map((TNImageUrl, index) => (

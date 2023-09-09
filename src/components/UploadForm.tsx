@@ -1,16 +1,17 @@
 import { ChangeEvent, useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { storage } from "../services/firebase.config";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { auth } from "../services/firebase.config";
+import { auth, db, storage } from "../services/firebase.config";
 import { User } from "firebase/auth";
 import NoAuth from "../pages/NoAuth";
+import { serverTimestamp, collection, addDoc } from "firebase/firestore";
 
 const UploadForm = () => {
   const [file, setFile] = useState<File | null>(null);
   const [percent, setPercent] = useState(0);
   const [error, setError] = useState<string>("");
   const [user, setUser] = useState<User | null>(null);
+  const collectionRef = collection(db, "fileMetadata");
 
   const navigate = useNavigate();
   const types = ["image/png", "image/jpeg"];
@@ -26,8 +27,6 @@ const UploadForm = () => {
     });
   }, []);
 
-  console.log("User in upload: ", user);
-
   const changeHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
     if (selected && types.includes(selected.type)) {
@@ -40,6 +39,8 @@ const UploadForm = () => {
 
     console.log("Selected file:", selected);
   };
+
+  console.log("UploadForm rendered");
 
   useEffect(() => {
     console.log("File:", file);
@@ -67,7 +68,14 @@ const UploadForm = () => {
         (error: Error) => console.log(error),
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-            console.log(url);
+            const imageData = {
+              uploader: user?.email,
+              timestamp: serverTimestamp(),
+              imageUrl: url,
+            };
+            addDoc(collectionRef, imageData).then((docRef: any) => {
+              console.log("Image metadata added with ID: ", docRef.id);
+            });
           });
         }
       );
