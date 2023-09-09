@@ -1,15 +1,18 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { storage } from "../services/firebase.config";
 import { ref, listAll, getDownloadURL } from "firebase/storage";
-import { auth } from "../services/firebase.config";
+import { auth, db } from "../services/firebase.config";
 import UploadForm from "./UploadForm";
+import { collection, getDocs } from "firebase/firestore";
 
 const PhotoDisplay: React.FC = () => {
+  const [uploader, setUploader] = useState<string[]>([]);
   const [TNImageUrls, setTNImageUrls] = useState<string[]>([]);
   const [largeImageUrls, setLargeImageUrls] = useState<string[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
     null
   );
+  const collectionRef = collection(db, "fileMetadata");
 
   useEffect(() => {
     // Function to fetch image URLs from Firebase Storage
@@ -22,6 +25,20 @@ const PhotoDisplay: React.FC = () => {
         });
         const urls = await Promise.all(urlsPromises);
         setTNImageUrls(urls);
+        const metaData = await getDocs(collectionRef);
+        const userData = metaData.docs.map((doc) => {
+          return doc.data();
+        });
+
+        console.log("Userdata: ", userData);
+
+        const imageUploader = userData.map((doc) => {
+          return doc.uploader;
+        });
+
+        setUploader(imageUploader);
+
+        console.log(imageUploader);
       } catch (error) {
         console.error("Error fetching thumbnail image URLs:", error);
       }
@@ -74,11 +91,12 @@ const PhotoDisplay: React.FC = () => {
               alt={`Thumbnail ${index}`}
               onClick={() => handleImageClick(index)}
             />
+            {uploader[index] && <p>Uploader: {uploader[index]}</p>}
           </div>
         ))}
       </div>
 
-      {/* Modal or lightbox to display the larger image */}
+      {/* lightbox to display the larger image */}
       {selectedImageIndex !== null && (
         <div className="modal">
           <button onClick={handleCloseModal}>Close</button>
