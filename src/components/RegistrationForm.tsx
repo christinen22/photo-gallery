@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { auth } from "../services/firebase.config";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { Form, Button } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const RegistrationForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
   const [error, setError] = useState(false);
+  const navigate = useNavigate();
 
   const handleRegistration = async () => {
     try {
@@ -17,10 +19,14 @@ const RegistrationForm = () => {
         password
       );
       const user = userCredential.user;
+      await updateProfile(user, {
+        displayName: username,
+      });
+      navigate("/home");
       console.log("User registered:", user);
     } catch (error) {
       setError(true);
-      console.error("Registration failed:", error);
+      console.log("Registration failed:", error);
     }
   };
 
@@ -37,6 +43,18 @@ const RegistrationForm = () => {
               placeholder="Enter email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </Form.Group>
+
+          <Form.Group controlId="formBasicUsername">
+            <Form.Label>Username</Form.Label>
+            <Form.Control
+              type="text"
+              className="register-textBox"
+              placeholder="Enter username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               required
             />
           </Form.Group>

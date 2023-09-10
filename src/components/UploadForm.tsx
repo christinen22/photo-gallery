@@ -1,5 +1,5 @@
 import { ChangeEvent, useState, useEffect } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { auth, db, storage } from "../services/firebase.config";
 import { User } from "firebase/auth";
@@ -13,7 +13,6 @@ const UploadForm = () => {
   const [user, setUser] = useState<User | null>(null);
   const collectionRef = collection(db, "fileMetadata");
 
-  const navigate = useNavigate();
   const types = ["image/png", "image/jpeg"];
 
   // Check if the user is logged in
@@ -36,11 +35,7 @@ const UploadForm = () => {
       setFile(null);
       setError("Please select an image file, png or jpeg.");
     }
-
-    console.log("Selected file:", selected);
   };
-
-  console.log("UploadForm rendered");
 
   useEffect(() => {
     console.log("File:", file);
@@ -51,10 +46,10 @@ const UploadForm = () => {
 
     if (file) {
       console.log("Uploading file:", file);
-      const storageRef = ref(storage, `images/${file.name}`);
+      const timestamp = Date.now();
+      const imageName = `image_${timestamp}_${file.name}`;
+      const storageRef = ref(storage, `images/${imageName}`);
       const uploadTask = uploadBytesResumable(storageRef, file);
-
-      console.log("storageref", storageRef);
 
       uploadTask.on(
         "state_changed",
@@ -69,7 +64,7 @@ const UploadForm = () => {
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((url) => {
             const imageData = {
-              uploader: user?.email,
+              uploader: user?.displayName,
               timestamp: serverTimestamp(),
               imageUrl: url,
             };
