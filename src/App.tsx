@@ -7,10 +7,13 @@ import UploadForm from "./components/UploadForm";
 import LoginForm from "./components/LoginForm";
 import RegistrationForm from "./components/RegistrationForm";
 import Home from "./pages/Home";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const App = () => {
   return (
     <Router>
+      <ToastContainer position="top-right" autoClose={5000} hideProgressBar />
       <Routes>
         <Route path="/" element={<Title />} />
         <Route path="/login" element={<LoginForm />} />

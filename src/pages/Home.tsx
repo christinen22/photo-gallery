@@ -15,8 +15,6 @@ const Home = () => {
         <div>
           <LogoutButton />
 
-          <h1>Welcome to your page</h1>
-
           <PhotoDisplay />
         </div>
       ) : (

@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
 import { auth } from "../services/firebase.config";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { Form, Button } from "react-bootstrap";
+import { Form, Button, Alert } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { toast } from "react-toastify";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [user, loading, error] = useAuthState(auth);
+  const [user, loading] = useAuthState(auth);
 
   const navigate = useNavigate();
 
@@ -20,15 +21,17 @@ const LoginForm = () => {
         password
       );
       const user = userCredential.user;
+
+      navigate("/home");
       console.log("User logged in:", user);
     } catch (error) {
-      console.error("Login failed:", error);
+      toast.error("Login failed. Please check your credentials.");
     }
   };
 
   useEffect(() => {
     if (loading) {
-      <p>Loading...</p>;
+      toast.info("Loading..."); // Display a loading message
       return;
     }
     if (user) navigate("/home");

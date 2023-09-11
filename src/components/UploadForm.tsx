@@ -92,7 +92,6 @@ const UploadForm = () => {
               {file && <div>{file.name}</div>}
             </div>
           </form>
-          <NavLink to="/home">Go home</NavLink>
         </div>
       ) : (
         <NoAuth />
