@@ -1,10 +1,11 @@
 import { ChangeEvent, useState, useEffect } from "react";
-import { NavLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { auth, db, storage } from "../services/firebase.config";
 import { User } from "firebase/auth";
 import NoAuth from "../pages/NoAuth";
 import { serverTimestamp, collection, addDoc } from "firebase/firestore";
+import { toast } from "react-toastify";
 
 const UploadForm = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -14,6 +15,7 @@ const UploadForm = () => {
   const collectionRef = collection(db, "fileMetadata");
 
   const types = ["image/png", "image/jpeg"];
+  const navigate = useNavigate();
 
   // Check if the user is logged in
   useEffect(() => {
@@ -60,7 +62,10 @@ const UploadForm = () => {
 
           setPercent(percent);
         },
-        (error: Error) => console.log(error),
+        (error: Error) => {
+          toast.error("Upload failed. Please try again later.");
+          console.log(error);
+        },
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((url) => {
             const imageData = {
@@ -68,14 +73,16 @@ const UploadForm = () => {
               timestamp: serverTimestamp(),
               imageUrl: url,
             };
-            addDoc(collectionRef, imageData).then((docRef: any) => {
+            return addDoc(collectionRef, imageData).then((docRef: any) => {
               console.log("Image metadata added with ID: ", docRef.id);
+              toast.success("Image uploaded successfully!");
+              window.location.reload();
             });
           });
         }
       );
     } else {
-      console.log("No file selected");
+      toast.error("No file selected.");
     }
   };
 

@@ -16,8 +16,8 @@ const App = () => {
       <ToastContainer position="top-right" autoClose={5000} hideProgressBar />
       <Routes>
         <Route path="/" element={<Title />} />
-        <Route path="/login" element={<LoginForm />} />
-        <Route path="/register" element={<RegistrationForm />} />
+        {/*  <Route path="/login" element={<LoginForm />} /> */}
+        {/*    <Route path="/register" element={<RegistrationForm />} /> */}
         <Route path="/home" element={<Home />} />
         <Route path="/upload" element={<UploadForm />} />
       </Routes>
