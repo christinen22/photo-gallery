@@ -19,7 +19,6 @@ const firebaseConfig = {
     measurementId: "G-CHXGYWVJPC"
 };
 
-console.log("Firebase configuration:", firebaseConfig);
 // Initialize Firebase
 export const app = initializeApp(firebaseConfig);
 export const storage = getStorage(app)
