@@ -9,6 +9,7 @@ import {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 
 type AuthContextType = {
@@ -16,6 +17,7 @@ type AuthContextType = {
   login: (email: string, password: string) => Promise<UserCredential>;
   logout: () => Promise<void>;
   signup: (email: string, password: string) => Promise<UserCredential>;
+  forgotPassword: (email: string) => Promise<void>;
   userEmail: string | null;
 };
 
@@ -41,6 +43,10 @@ const AuthContextProvider: React.FC<AuthContextProps> = ({ children }) => {
     return createUserWithEmailAndPassword(auth, email, password);
   };
 
+  const forgotPassword = (email: string) => {
+    return sendPasswordResetEmail(auth, email);
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
@@ -64,6 +70,7 @@ const AuthContextProvider: React.FC<AuthContextProps> = ({ children }) => {
         login,
         logout,
         signup,
+        forgotPassword,
         userEmail,
       }}
     >

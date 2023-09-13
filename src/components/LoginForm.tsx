@@ -17,7 +17,6 @@ const LoginForm = () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       toast.success("Logging in...");
-      //const user = userCredential.user;
     } catch (error) {
       toast.error("Login failed. Please check your credentials.");
     }
@@ -76,6 +75,12 @@ const LoginForm = () => {
         <Col md={12}>
           <p className="text-sm text-white text-center">
             No account yet? <Link to="/register">Sign up</Link>
+          </p>
+        </Col>
+        <Col md={12}>
+          <p className="text-sm text-white text-center">
+            Forgot your password?{" "}
+            <Link to="/forgotpassword">We'll fix that!</Link>
           </p>
         </Col>
       </Row>

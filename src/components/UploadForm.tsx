@@ -15,7 +15,6 @@ const UploadForm = () => {
   const collectionRef = collection(db, "fileMetadata");
 
   const types = ["image/png", "image/jpeg"];
-  const navigate = useNavigate();
 
   // Check if the user is logged in
   useEffect(() => {

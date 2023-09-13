@@ -9,6 +9,7 @@ import RegistrationForm from "./components/RegistrationForm";
 import Home from "./pages/Home";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ForgotPassword from "./pages/ForgotPassword";
 
 const App = () => {
   return (
@@ -20,6 +21,7 @@ const App = () => {
         <Route path="/register" element={<RegistrationForm />} />
         <Route path="/home" element={<Home />} />
         <Route path="/upload" element={<UploadForm />} />
+        <Route path="/forgotpassword" element={<ForgotPassword />} />
       </Routes>
     </Router>
   );
