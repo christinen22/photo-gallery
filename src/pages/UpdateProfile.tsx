@@ -3,6 +3,9 @@ import { FirebaseError } from "firebase/app";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { UpdateProfileData } from "../types";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
+import { storage } from "../services/firebase.config";
+import { getDownloadURL, uploadBytes, ref } from "firebase/storage";
 import {
   Form,
   Button,
@@ -15,29 +18,88 @@ import {
 import useAuth from "../hooks/useAuth";
 
 const UpdateProfile = () => {
-  const { updateProfile, currentUser, updateEmail, updatePassword } = useAuth();
-  const [displayName, setDisplayName] = useState("");
-  const [photoURL, setPhotoURL] = useState("");
-  const [email, setEmail] = useState("");
+  const {
+    currentUser,
+    reloadUser,
+    setDisplayName,
+    setEmail,
+    setPassword,
+    setPhotoUrl,
+  } = useAuth();
   const {
     handleSubmit,
     register,
     watch,
     setValue,
     formState: { errors },
-  } = useForm<UpdateProfileData>();
+  } = useForm<UpdateProfileData>({
+    defaultValues: {
+      email: currentUser?.email ?? "",
+      displayName: currentUser?.displayName ?? "",
+    },
+  });
   const [error, setError] = useState<string | null>(null);
 
   const passwordRef = useRef("");
   passwordRef.current = watch("password");
 
+  const photoFileRef = useRef<FileList | null>(null);
+  photoFileRef.current = watch("photoFile");
+
   const onUpdateProfile: SubmitHandler<UpdateProfileData> = async (data) => {
     setError(null);
 
     if (currentUser) {
-      // Update display name and photo URL
       try {
-        await updateProfile(currentUser, data.displayName, data.photoURL);
+        if (data.displayName !== (currentUser.displayName ?? "")) {
+          console.log("Updating display name...");
+          await setDisplayName(data.displayName);
+        }
+
+        if (data.email !== (currentUser.email ?? "")) {
+          console.log("Updating email...");
+          await setEmail(data.email);
+        }
+
+        if (data.password) {
+          console.log("Updating password...");
+          await setPassword(data.password);
+        }
+
+        if (data.photoFile.length) {
+          const photo = data.photoFile[0];
+
+          // create a reference to upload the file to
+          // example: "photos/3PjBWeCaZmfasyz4jTEURhnFtI83/space.jpg"
+          const fileRef = ref(
+            storage,
+            `photos/${currentUser.uid}/${photo.name}`
+          );
+
+          try {
+            // upload photo to fileRef
+            const uploadResult = await uploadBytes(fileRef, photo);
+
+            // get download url to uploaded file
+            const photoUrl = await getDownloadURL(uploadResult.ref);
+
+            console.log(
+              "Photo successfully uploaded, download url is: " + photoUrl
+            );
+
+            // set download url as the users photoURL
+            await setPhotoUrl(photoUrl);
+          } catch (e) {
+            console.log("Upload failed", e);
+            setError("Upload failed!");
+          }
+        }
+
+        // Reload user data
+        await reloadUser();
+
+        // Show success toast
+        toast.success("Profile successfully updated");
       } catch (error) {
         if (error instanceof FirebaseError) {
           setError(error.message);
@@ -45,37 +107,10 @@ const UpdateProfile = () => {
           setError("Something went wrong.");
         }
       }
-      // Update email and password if they are provided
-      if (data.email) {
-        try {
-          // Update email
-          await updateEmail(currentUser, data.email);
-
-          // Update password
-          await updatePassword(currentUser, data.password);
-        } catch (error) {
-          if (error instanceof FirebaseError) {
-            setError(error.message);
-          } else {
-            setError("Something went wrong.");
-          }
-        }
-      }
 
       console.log("Data: ", data);
     }
   };
-
-  useEffect(() => {
-    if (currentUser) {
-      setDisplayName(currentUser.displayName || "");
-      setPhotoURL(currentUser.photoURL || "");
-      setEmail(currentUser.email || "");
-      setValue("displayName", currentUser.displayName || "");
-      setValue("photoURL", currentUser.photoURL || "");
-      setValue("email", currentUser.email || "");
-    }
-  }, [currentUser, setValue]);
 
   return (
     <Container className="py-3 center-y">
@@ -108,22 +143,42 @@ const UpdateProfile = () => {
                 </Form.Group>
 
                 <Form.Group controlId="photoURL" className="mb-3">
-                  <Form.Label>Photo URL</Form.Label>
+                  <Form.Label>Photo</Form.Label>
                   <div className="input-container">
                     <Form.Control
-                      type="url"
-                      placeholder="photo-url"
-                      {...register("photoURL")}
+                      type="file"
+                      accept="image/gif,image/jpeg,image/png,image/webp"
+                      {...register("photoFile")}
                     />
+                    <Form.Text>
+                      {photoFileRef.current &&
+                        photoFileRef.current.length > 0 && (
+                          <span>
+                            {photoFileRef.current[0].name} (
+                            {Math.round(photoFileRef.current[0].size / 1024)}{" "}
+                            kB)
+                          </span>
+                        )}
+                    </Form.Text>
                   </div>
                 </Form.Group>
+
+                {currentUser && currentUser.photoURL && (
+                  <div className="mb-3">
+                    <img
+                      src={currentUser.photoURL}
+                      alt="Profile"
+                      style={{ maxWidth: "100px", maxHeight: "100px" }}
+                    />
+                  </div>
+                )}
 
                 <Form.Group controlId="email" className="mb-3">
                   <Form.Label>Email</Form.Label>
                   <div className="input-container">
                     <Form.Control
                       type="email"
-                      placeholder="snelhest2000@horsemail.com"
+                      placeholder="email"
                       {...register("email")}
                     />
                   </div>
@@ -137,7 +192,7 @@ const UpdateProfile = () => {
                       autoComplete="new-password"
                       {...register("password", {
                         minLength: {
-                          value: 6,
+                          value: 3,
                           message: "Password must be at least 6 characters",
                         },
                       })}

@@ -20,16 +20,15 @@ type AuthContextType = {
   login: (email: string, password: string) => Promise<UserCredential>;
   logout: () => Promise<void>;
   signup: (email: string, password: string) => Promise<UserCredential>;
+  reloadUser: () => Promise<boolean>;
   forgotPassword: (email: string) => Promise<void>;
-  updateProfile: (
-    user: User,
-    displayName: string,
-    photoURL: string
-  ) => Promise<void>;
-  updateEmail: (user: User, email: string) => Promise<void>;
-  updatePassword: (user: User, newPassword: string) => Promise<void>;
-
+  setEmail: (email: string) => Promise<void>;
+  setDisplayName: (displayName: string) => Promise<void>;
+  setPassword: (password: string) => Promise<void>;
+  setPhotoUrl: (photoURL: string) => Promise<void>;
   userEmail: string | null;
+  userName: string | null;
+  userPhotoUrl: string | null;
 };
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -41,6 +40,8 @@ type AuthContextProps = {
 const AuthContextProvider: React.FC<AuthContextProps> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
+  const [userPhotoUrl, setUserPhotoUrl] = useState<string | null>(null);
 
   const login = (email: string, password: string) => {
     return signInWithEmailAndPassword(auth, email, password);
@@ -54,26 +55,47 @@ const AuthContextProvider: React.FC<AuthContextProps> = ({ children }) => {
     return createUserWithEmailAndPassword(auth, email, password);
   };
 
+  const reloadUser = async () => {
+    if (!auth.currentUser) {
+      return false;
+    }
+    setUserName(auth.currentUser.displayName);
+    setUserEmail(auth.currentUser.email);
+    setUserPhotoUrl(auth.currentUser.photoURL);
+
+    return true;
+  };
+
   const forgotPassword = (email: string) => {
     return sendPasswordResetEmail(auth, email);
   };
 
-  const updateProfile = async (
-    currentUser: User,
-    displayName: string,
-    photoURL: string
-  ) => {
-    if (currentUser) {
-      return firebaseUpdateProfile(currentUser, { displayName, photoURL });
+  const setEmail = (email: string) => {
+    if (!currentUser) {
+      throw new Error("Current User is null!");
     }
+    return firebaseUpdateEmail(currentUser, email);
   };
 
-  const updateEmail = async (user: User, email: string) => {
-    return firebaseUpdateEmail(user, email);
+  const setPassword = (password: string) => {
+    if (!currentUser) {
+      throw new Error("Current User is null!");
+    }
+    return firebaseUpdatePassword(currentUser, password);
   };
 
-  const updatePassword = async (user: User, newPassword: string) => {
-    return firebaseUpdatePassword(user, newPassword);
+  const setDisplayName = (displayName: string) => {
+    if (!currentUser) {
+      throw new Error("Current User is null!");
+    }
+    return firebaseUpdateProfile(currentUser, { displayName });
+  };
+
+  const setPhotoUrl = (photoURL: string) => {
+    if (!currentUser) {
+      throw new Error("Current User is null!");
+    }
+    return firebaseUpdateProfile(currentUser, { photoURL });
   };
 
   useEffect(() => {
@@ -98,12 +120,16 @@ const AuthContextProvider: React.FC<AuthContextProps> = ({ children }) => {
         currentUser,
         login,
         logout,
+        reloadUser,
         signup,
         forgotPassword,
-        updateProfile,
-        updateEmail,
-        updatePassword,
+        setDisplayName,
+        setEmail,
+        setPassword,
+        setPhotoUrl,
         userEmail,
+        userName,
+        userPhotoUrl,
       }}
     >
       <>{children}</>

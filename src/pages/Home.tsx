@@ -1,19 +1,27 @@
 import LogoutButton from "../components/partials/LogoutButton";
 import PhotoDisplay from "../components/PhotoDisplay";
-import { auth } from "../services/firebase.config";
-import { useAuthState } from "react-firebase-hooks/auth";
 import { Link } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
 
 import NoAuth from "./NoAuth";
 
 const Home = () => {
-  const [user, loading, error] = useAuthState(auth);
+  const { currentUser } = useAuth();
 
   return (
     <>
-      {user ? (
+      {currentUser ? (
         <div>
-          Welcome {user.displayName}
+          Welcome {currentUser!.displayName}
+          {currentUser && currentUser.photoURL && (
+            <div className="mb-3">
+              <img
+                src={currentUser.photoURL}
+                alt="Profile"
+                style={{ maxWidth: "100px", maxHeight: "100px" }}
+              />
+            </div>
+          )}
           <LogoutButton />
           <Link to="/update-profile">Update your profile</Link>
           <PhotoDisplay />

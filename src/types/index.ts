@@ -15,6 +15,7 @@ export type RegisterCredentials = {
 
 export type UpdateProfileData = {
     displayName: string,
+    photoFile: FileList,
     email: string,
     password: string,
     confirmPassword: string,
