@@ -10,6 +10,9 @@ import {
   signOut,
   onAuthStateChanged,
   sendPasswordResetEmail,
+  updateProfile as firebaseUpdateProfile,
+  updateEmail as firebaseUpdateEmail,
+  updatePassword as firebaseUpdatePassword,
 } from "firebase/auth";
 
 type AuthContextType = {
@@ -18,6 +21,14 @@ type AuthContextType = {
   logout: () => Promise<void>;
   signup: (email: string, password: string) => Promise<UserCredential>;
   forgotPassword: (email: string) => Promise<void>;
+  updateProfile: (
+    user: User,
+    displayName: string,
+    photoURL: string
+  ) => Promise<void>;
+  updateEmail: (user: User, email: string) => Promise<void>;
+  updatePassword: (user: User, newPassword: string) => Promise<void>;
+
   userEmail: string | null;
 };
 
@@ -47,6 +58,24 @@ const AuthContextProvider: React.FC<AuthContextProps> = ({ children }) => {
     return sendPasswordResetEmail(auth, email);
   };
 
+  const updateProfile = async (
+    currentUser: User,
+    displayName: string,
+    photoURL: string
+  ) => {
+    if (currentUser) {
+      return firebaseUpdateProfile(currentUser, { displayName, photoURL });
+    }
+  };
+
+  const updateEmail = async (user: User, email: string) => {
+    return firebaseUpdateEmail(user, email);
+  };
+
+  const updatePassword = async (user: User, newPassword: string) => {
+    return firebaseUpdatePassword(user, newPassword);
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
@@ -71,6 +100,9 @@ const AuthContextProvider: React.FC<AuthContextProps> = ({ children }) => {
         logout,
         signup,
         forgotPassword,
+        updateProfile,
+        updateEmail,
+        updatePassword,
         userEmail,
       }}
     >

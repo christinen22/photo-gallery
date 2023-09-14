@@ -12,3 +12,11 @@ export type RegisterCredentials = {
     password: string,
     passwordConfirm: string
 }
+
+export type UpdateProfileData = {
+    displayName: string,
+    email: string,
+    password: string,
+    confirmPassword: string,
+    photoURL: string
+}

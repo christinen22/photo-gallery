@@ -80,7 +80,7 @@ const LoginForm = () => {
         <Col md={12}>
           <p className="text-sm text-white text-center">
             Forgot your password?{" "}
-            <Link to="/forgotpassword">We'll fix that!</Link>
+            <Link to="/forgot-password">We'll fix that!</Link>
           </p>
         </Col>
       </Row>

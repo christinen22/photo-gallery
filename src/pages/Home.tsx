@@ -1,8 +1,8 @@
 import LogoutButton from "../components/partials/LogoutButton";
-import UploadForm from "../components/UploadForm";
 import PhotoDisplay from "../components/PhotoDisplay";
 import { auth } from "../services/firebase.config";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { Link } from "react-router-dom";
 
 import NoAuth from "./NoAuth";
 
@@ -13,8 +13,9 @@ const Home = () => {
     <>
       {user ? (
         <div>
+          Welcome {user.displayName}
           <LogoutButton />
-
+          <Link to="/update-profile">Update your profile</Link>
           <PhotoDisplay />
         </div>
       ) : (
